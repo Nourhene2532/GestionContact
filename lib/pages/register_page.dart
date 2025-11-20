@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../database/database_helper.dart';
 import '../models/User.dart';
 
@@ -75,9 +76,9 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           );
           
-          // Retourner à la page de connexion
+          // Retourner à la page de connexion avec GoRouter
           Future.delayed(const Duration(seconds: 1), () {
-            Navigator.pop(context);
+            context.pop();
           });
         }
       } catch (e) {
@@ -95,7 +96,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _navigateToLogin() {
-    Navigator.pop(context);
+    context.pop(); // Utiliser GoRouter pour revenir en arrière
   }
 
   @override
@@ -111,11 +112,20 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white, // Changé pour correspondre au style moderne
       appBar: AppBar(
-        title: const Text('Créer un compte'),
+        title: const Text(
+          'Créer un compte',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.white,
         elevation: 0,
+        foregroundColor: Colors.black87,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: _navigateToLogin,
@@ -123,12 +133,13 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0), // Augmenté le padding pour plus d'espace
           child: Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
+            shadowColor: Colors.black12,
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Form(
@@ -183,11 +194,18 @@ class _RegisterPageState extends State<RegisterPage> {
                         Expanded(
                           child: TextFormField(
                             controller: _firstNameController,
+                            style: const TextStyle(fontSize: 16),
                             decoration: InputDecoration(
                               labelText: "Prénom",
-                              prefixIcon: const Icon(Icons.person),
+                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              prefixIcon: const Icon(Icons.person_outline),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey[300]!),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Colors.green, width: 2),
                               ),
                               filled: true,
                               fillColor: Colors.grey[50],
@@ -200,14 +218,21 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: TextFormField(
                             controller: _lastNameController,
+                            style: const TextStyle(fontSize: 16),
                             decoration: InputDecoration(
                               labelText: "Nom",
+                              labelStyle: TextStyle(color: Colors.grey[600]),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey[300]!),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Colors.green, width: 2),
                               ),
                               filled: true,
                               fillColor: Colors.grey[50],
@@ -229,11 +254,18 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(fontSize: 16),
                       decoration: InputDecoration(
                         labelText: "Email",
-                        prefixIcon: const Icon(Icons.email),
+                        labelStyle: TextStyle(color: Colors.grey[600]),
+                        prefixIcon: const Icon(Icons.email_outlined),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Colors.green, width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.grey[50],
@@ -256,15 +288,17 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
+                      style: const TextStyle(fontSize: 16),
                       decoration: InputDecoration(
                         labelText: "Mot de passe",
-                        prefixIcon: const Icon(Icons.lock),
+                        labelStyle: TextStyle(color: Colors.grey[600]),
+                        prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.grey,
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: Colors.grey[500],
                           ),
                           onPressed: () {
                             setState(() {
@@ -274,6 +308,11 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Colors.green, width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.grey[50],
@@ -295,15 +334,17 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: _obscureConfirmPassword,
+                      style: const TextStyle(fontSize: 16),
                       decoration: InputDecoration(
                         labelText: "Confirmer le mot de passe",
+                        labelStyle: TextStyle(color: Colors.grey[600]),
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscureConfirmPassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.grey,
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: Colors.grey[500],
                           ),
                           onPressed: () {
                             setState(() {
@@ -313,6 +354,11 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Colors.green, width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.grey[50],
@@ -320,6 +366,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Veuillez confirmer votre mot de passe";
+                        }
+                        if (value != _passwordController.text) {
+                          return "Les mots de passe ne correspondent pas";
                         }
                         return null;
                       },
@@ -331,11 +380,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     ElevatedButton(
                       onPressed: _loading ? null : _register,
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        backgroundColor: Colors.green,
+                        elevation: 2,
+                        shadowColor: Colors.green.withOpacity(0.3),
                         disabledBackgroundColor: Colors.green.withOpacity(0.5),
                       ),
                       child: _loading
@@ -350,8 +402,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           : const Text(
                               "Créer mon compte",
                               style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                     ),
@@ -362,13 +414,16 @@ class _RegisterPageState extends State<RegisterPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Déjà un compte ?"),
+                        Text(
+                          "Déjà un compte ?",
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
                         TextButton(
                           onPressed: _navigateToLogin,
                           child: const Text(
                             "Se connecter",
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               color: Colors.green,
                             ),
                           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'pages/login_page.dart'; 
+import 'package:go_router/go_router.dart';
+import 'routes/app_router.dart';
 
 // Variable globale pour stocker l'ID de l'utilisateur connecté
 int? currentUserId;
@@ -13,14 +14,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Gestion Contacts',
+    return MaterialApp.router(
+      routerConfig: AppRouter.router,
+      title: 'App Contacts',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        useMaterial3: true,
       ),
-      home: const LoginPage(), 
+      debugShowCheckedModeBanner: false,
     );
   }
 }

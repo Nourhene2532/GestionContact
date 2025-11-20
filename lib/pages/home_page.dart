@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../database/database_helper.dart';
 import '../models/contact.dart';
-import '../main.dart'; // ← IMPORT POUR currentUserId
+import '../main.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -30,7 +30,6 @@ class _HomePageState extends State<HomePage> {
       _isLoading = true;
     });
     
-    // CHARGE SEULEMENT LES CONTACTS DE L'UTILISATEUR CONNECTÉ
     if (currentUserId != null) {
       try {
         final contacts = await _databaseHelper.getContactsByUser(currentUserId!);
@@ -45,9 +44,11 @@ class _HomePageState extends State<HomePage> {
             _isLoading = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            SnackBar( // ✅ CORRIGÉ : const retiré
               content: Text('❌ Erreur: ${e.toString()}'),
               backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           );
         }
@@ -58,12 +59,13 @@ class _HomePageState extends State<HomePage> {
           _isLoading = false;
         });
       }
-      print('❌ Aucun utilisateur connecté');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('❌ Aucun utilisateur connecté'),
+          SnackBar( // ✅ CORRIGÉ : const retiré
+            content: const Text('❌ Aucun utilisateur connecté'),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       }
@@ -91,9 +93,11 @@ class _HomePageState extends State<HomePage> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            SnackBar( // ✅ CORRIGÉ : const retiré
               content: Text('❌ Erreur de recherche: ${e.toString()}'),
               backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           );
         }
@@ -104,9 +108,11 @@ class _HomePageState extends State<HomePage> {
   void _deleteContact(int id) async {
     if (currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('❌ Aucun utilisateur connecté'),
+        SnackBar( // ✅ CORRIGÉ : const retiré
+          content: const Text('❌ Aucun utilisateur connecté'),
           backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
       return;
@@ -115,16 +121,25 @@ class _HomePageState extends State<HomePage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmer la suppression'),
+        title: const Text(
+          'Confirmer la suppression',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: const Text('Êtes-vous sûr de vouloir supprimer ce contact ?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Annuler'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Supprimer'),
           ),
         ],
       ),
@@ -133,18 +148,22 @@ class _HomePageState extends State<HomePage> {
     if (confirmed == true && mounted) {
       try {
         await _databaseHelper.deleteContact(id, currentUserId!);
-        _loadContacts(); // Recharge la liste après suppression
+        _loadContacts();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Contact supprimé avec succès'),
+          SnackBar( // ✅ CORRIGÉ : const retiré
+            content: const Text('✅ Contact supprimé avec succès'),
             backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          SnackBar( // ✅ CORRIGÉ : const retiré
             content: Text('❌ Erreur: ${e.toString()}'),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       }
@@ -152,7 +171,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _logout() {
-    currentUserId = null; // ← DÉCONNECTE L'UTILISATEUR
+    currentUserId = null;
     context.go('/');
   }
 
@@ -165,12 +184,27 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Mes Contacts'),
-        backgroundColor: Colors.blue,
+        title: const Text(
+          'Mes Contacts',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF667EEA),
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: _logout,
             tooltip: 'Déconnexion',
           ),
@@ -178,20 +212,57 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
-          // Barre de recherche
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Rechercher un contact',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.grey[50],
+          // Header avec statistiques
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildStatItem('Total', _contacts.length.toString(), Icons.contacts),
+                    _buildStatItem('Connecté', currentUserId != null ? 'Oui' : 'Non', Icons.person),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                
+                // Barre de recherche moderne
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Rechercher un contact...',
+                      hintStyle: TextStyle(color: Colors.grey[500]),
+                      border: InputBorder.none,
+                      prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -199,82 +270,198 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667EEA)),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Chargement des contacts...',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 : _filteredContacts.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              _searchController.text.isEmpty
-                                  ? Icons.contacts_outlined
-                                  : Icons.search_off,
-                              size: 80,
-                              color: Colors.grey,
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                _searchController.text.isEmpty
+                                    ? Icons.contacts_outlined
+                                    : Icons.search_off,
+                                size: 80,
+                                color: Colors.grey[400],
+                              ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 20),
                             Text(
                               _searchController.text.isEmpty
                                   ? 'Aucun contact trouvé'
-                                  : 'Aucun résultat pour "${_searchController.text}"',
-                              style: const TextStyle(fontSize: 18, color: Colors.grey),
+                                  : 'Aucun résultat',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               _searchController.text.isEmpty
-                                  ? 'Ajoutez votre premier contact !'
-                                  : 'Essayez avec d\'autres termes',
-                              style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                  ? 'Commencez par ajouter votre premier contact !'
+                                  : 'Essayez avec d\'autres termes de recherche',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[500],
+                              ),
                             ),
+                            const SizedBox(height: 20),
+                            if (_searchController.text.isEmpty)
+                              ElevatedButton(
+                                onPressed: () => context.push('/add-contact'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF667EEA),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text('Ajouter un contact'),
+                              ),
                           ],
                         ),
                       )
                     : ListView.builder(
+                        padding: const EdgeInsets.all(16),
                         itemCount: _filteredContacts.length,
                         itemBuilder: (context, index) {
                           final contact = _filteredContacts[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
                             child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.blue,
-                                child: Text(
-                                  contact.firstName.isNotEmpty 
-                                      ? contact.firstName[0].toUpperCase()
-                                      : '?',
-                                  style: const TextStyle(color: Colors.white),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              leading: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    contact.firstName.isNotEmpty 
+                                        ? contact.firstName[0].toUpperCase()
+                                        : '?',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
                               title: Text(
                                 '${contact.firstName} ${contact.lastName}',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    '📞 ${contact.phone}',
-                                    style: const TextStyle(fontSize: 14),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.phone, size: 14, color: Colors.grey[600]),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        contact.phone,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  if (contact.email != null && contact.email!.isNotEmpty)
-                                    Text(
-                                      '📧 ${contact.email!}',
-                                      style: const TextStyle(fontSize: 14),
+                                  if (contact.email != null && contact.email!.isNotEmpty) ...[
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.email, size: 14, color: Colors.grey[600]),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          contact.email!,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
                                     ),
+                                  ],
                                 ],
                               ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    icon: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.shade50,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(Icons.edit, size: 18, color: Colors.blue),
+                                    ),
                                     onPressed: () {
                                       context.push('/edit-contact', extra: contact);
                                     },
                                   ),
+                                  const SizedBox(width: 4),
                                   IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    icon: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(Icons.delete, size: 18, color: Colors.red),
+                                    ),
                                     onPressed: () => _deleteContact(contact.id!),
                                   ),
                                 ],
@@ -286,22 +473,58 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton( // ✅ CORRIGÉ : const retiré
         onPressed: () {
           if (currentUserId == null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('❌ Veuillez vous connecter d\'abord'),
+              SnackBar( // ✅ CORRIGÉ : const retiré
+                content: const Text('❌ Veuillez vous connecter d\'abord'),
                 backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             );
             return;
           }
           context.push('/add-contact');
         },
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: const Color(0xFF667EEA),
+        foregroundColor: Colors.white,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add, size: 28),
       ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: Colors.white, size: 20),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.white.withOpacity(0.8),
+          ),
+        ),
+      ],
     );
   }
 }
